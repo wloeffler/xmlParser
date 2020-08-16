@@ -7,13 +7,15 @@ import os
 from pathlib import Path
 import re
 import PyPDF4
-import pdfminer3
+import pdfminer
 import io
 
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfpage import PDFPage
+
+from xmlParse import XMLParser
 
 # basic info
 folderPath = r"C:\Users\wloeffler\Downloads\nbCITI_MRN385548\home\biblen"
@@ -58,17 +60,42 @@ badString = "Verify Patient Status/Charges"
 # gets the local file name
 fileNames = os.listdir(folderPath)
 # gets the full file path
-fullFilePath = [os.path.join(folderPath + '\\', x) for x in fileNames]
+#fullFilePath = [os.path.join(folderPath + '\\', x) for x in fileNames]
+
+#used for testing one file, above commented out will search who dir
+fullFilePath = [r'C:\Users\wloeffler\PycharmProjects\xmlParserUse\trialReplace.pdf']
 # print(str(fullFilePath)
+
+#xml part
+xmllistClass = XMLParser()
+parsedXmlList  = xmllistClass.fileParser()
+
 
 # pdf checker part
 for x in range(0, fullFilePath.__len__()):
-
+    flag = False
     pdfObject = PyPDF4.PdfFileReader(str(fullFilePath[x]))
     # searches each page for the string
     text = convert_pdf_to_txt(fullFilePath[x])
+    print(text)
+    for y in range(0, len(parsedXmlList)):
+        if parsedXmlList[y][0] in text:
+            flag = True
+            text = text.replace(parsedXmlList[y][0],parsedXmlList[y][1])
 
-    if badString in text:
-        print("error in file " + fileNames[x] + "\n it contains " + badString)
+    print(str(text))
 
-print('---done---')
+    tempFile = open('temp.txt','w')
+    tempFile.write(text)
+
+
+    add = PyPDF4.PdfFileReader(tempFile)
+
+    if(flag):
+        pdfWriter = PyPDF4.PdfFileWriter()
+        pdfWriter.cloneDocumentFromReader(add)
+        outfile = open('testfile.pdf', 'w')
+        pdfWriter.write(outfile)
+
+
+
