@@ -17,6 +17,8 @@ from pdfminer.pdfpage import PDFPage
 
 from xmlParse import XMLParser
 
+from fpdf import FPDF
+
 # basic info
 folderPath = r"C:\Users\wloeffler\Downloads\nbCITI_MRN385548\home\biblen"
 
@@ -77,25 +79,30 @@ for x in range(0, fullFilePath.__len__()):
     pdfObject = PyPDF4.PdfFileReader(str(fullFilePath[x]))
     # searches each page for the string
     text = convert_pdf_to_txt(fullFilePath[x])
-    print(text)
+    #print(text)
     for y in range(0, len(parsedXmlList)):
         if parsedXmlList[y][0] in text:
             flag = True
             text = text.replace(parsedXmlList[y][0],parsedXmlList[y][1])
 
-    print(str(text))
+    #print(str(text))
 
     tempFile = open('temp.txt','w')
     tempFile.write(text)
+    tempFile.close()
 
-
-    add = PyPDF4.PdfFileReader(tempFile)
+    readinFile = open('temp.txt')
 
     if(flag):
-        pdfWriter = PyPDF4.PdfFileWriter()
-        pdfWriter.cloneDocumentFromReader(add)
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=8)
         outfile = open('testfile.pdf', 'w')
-        pdfWriter.write(outfile)
+        for line in readinFile:
+            pdf.cell(200,10, txt=line, ln=1, align='l')
+            print(line)
+        pdf.output('testfile.pdf')
+        outfile.close()
 
 
 

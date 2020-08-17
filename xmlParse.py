@@ -18,7 +18,7 @@ class XMLParser:
 
         root = keyfile.getroot()
 
-        print((root.tag,root.attrib))
+       # print((root.tag,root.attrib))
 
         counter =0
         temp = ''
